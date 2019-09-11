@@ -1,10 +1,9 @@
 
 import pandas as pd
 import datetime
+import numpy as np
 # Load the Pandas libraries with alias 'pd'
-pd.set_option('display.max_columns', None)
-pd.set_option('display.expand_frame_repr', False)
-pd.set_option('max_colwidth', -1)
+
 
 data_ride_id = pd.read_csv("drop_out_drivers.csv")
 data_total_table = pd.read_csv('/Users/xinhao/Downloads/lyft_data_challenge/final/erin_code.csv')
@@ -79,20 +78,35 @@ def compute_waiting_time(current_table):
 #     :return:
 #     """
     responding_time = datetime.timedelta()
-    for ind,drive in current_table.iterrows():
+
+    for ind in range(len(current_table)-1):
         try:
             request = datetime.datetime.strptime(current_table.iloc[ind+1]['picked_up_at'],'%Y-%m-%d %H:%M:%S')
             arr = datetime.datetime.strptime(current_table.iloc[ind]['arrived_at'],'%Y-%m-%d %H:%M:%S')
-            time = pick_up-request
+            time = request-arr
             responding_time = responding_time+time
         except:
             continue
+        responding_time = int(responding_time.seconds)
     return responding_time/float(len(current_table)-1)
 
 def compute_speed(current_table):
     total_dist = sum(list(current_table['ride_distance']))
     total_duration = sum(list(current_table['ride_duration']))
     return float(total_dist)/total_duration
+
+
+def compute_pearson_coefficient(factors):
+    """
+    compute pearson_coefficient with career length
+    :param x:
+    :param carreer_len:
+    :return:
+    """
+    for col in factors.columns:
+        if col != 'driver_id':
+            print(col, factors[col].corr(factors['career_len']))
+
 
 factors = pd.DataFrame(columns = ['driver_id','career_len','rides_per_day','profit','responding','arrival','waiting','speed'])
 for driver_id in data_ride_id['driver_id']:
@@ -104,11 +118,11 @@ for driver_id in data_ride_id['driver_id']:
     arrival_time = compute_arrival_time(current_table)
     waiting_time = compute_waiting_time(current_table)
     speed = compute_speed(current_table)
-    print(factors)
     factors.loc[-1] = [driver_id, career_len,num_per_day, profit,responding_time,arrival_time,waiting_time,speed]
     factors.index = factors.index + 1
     factors = factors.sort_index()
-print(factors)
+    print(len(factors))
+
 factors.to_csv('main_factors')
 # print(data_total_table)
 
