@@ -5,7 +5,7 @@ import numpy as np
 # Load the Pandas libraries with alias 'pd'
 
 
-data_ride_id = pd.read_csv("drop_out_drivers.csv")
+data_ride_id = pd.read_csv("drop_out_drivers 2.csv")
 data_total_table = pd.read_csv('/Users/xinhao/Downloads/lyft_data_challenge/final/erin_code.csv')
 
 
@@ -19,6 +19,10 @@ def compute_drives_per_day(current_table):
     date = [x[:10] for x in date_sec]
     return float(len(date)) / len(set(date))
 
+def compute_total_duration(current_table):
+    total_dur = sum(current_table['ride_duration']/60)
+    return total_dur
+
 def compute_profit(current_table):
     """
     compute Avearge Profit per drive （average earning/day)
@@ -28,7 +32,7 @@ def compute_profit(current_table):
     """
     total = 0
     for ind,drive in current_table.iterrows():
-        profit_per_drive = 2+1.15*drive['ride_distance']+0.22*drive['ride_duration']+1.75
+        profit_per_drive = 2+1.15*drive['ride_distance']/1609.34+0.22*drive['ride_duration']/60+1.75
         if profit_per_drive < 5:
             profit_per_drive = 5
         elif profit_per_drive >400:
@@ -36,6 +40,20 @@ def compute_profit(current_table):
         total += profit_per_drive
     # print(total,len(current_table),total / float(len(current_table)))
     return total / float(len(current_table))
+
+def compute_profit_per_day(current_table):
+    total = 0
+    for ind,drive in current_table.iterrows():
+        profit_per_drive = 2+1.15*drive['ride_distance']/1609.34+0.22*drive['ride_duration']/60+1.75
+        if profit_per_drive < 5:
+            profit_per_drive = 5
+        elif profit_per_drive >400:
+            profit_per_drive = 400
+        total += profit_per_drive
+    # print(total,len(current_table),total / float(len(current_table)))
+    date_sec = list(current_table['picked_up_at'])
+    date = [x[:10] for x in date_sec]
+    return total
 
 def compute_responding_time(current_table):
     """
@@ -108,19 +126,21 @@ def compute_pearson_coefficient(factors):
             print(col, factors[col].corr(factors['career_len']))
 
 
-factors = pd.DataFrame(columns = ['driver_id','career_len','rides_per_day','profit','responding','arrival','waiting','speed'])
+factors = pd.DataFrame(columns = ['driver_id','career_len','rides_per_day','profit','responding','arrival','waiting','speed','total_duration'])
 for driver_id in data_ride_id['driver_id']:
     current_table = data_total_table[data_total_table['driver'] == driver_id]
     career_len = data_ride_id[data_ride_id['driver_id']== driver_id]['career_length'].values[0]
     num_per_day =  compute_drives_per_day(current_table)
-    profit = compute_profit(current_table)
+    profit = compute_profit_per_day(current_table)
     responding_time = compute_responding_time(current_table)
     arrival_time = compute_arrival_time(current_table)
     waiting_time = compute_waiting_time(current_table)
     speed = compute_speed(current_table)
-    factors.loc[-1] = [driver_id, career_len,num_per_day, profit,responding_time,arrival_time,waiting_time,speed]
+    dur = compute_total_duration(current_table)
+    factors.loc[-1] = [driver_id, career_len,num_per_day, profit,responding_time,arrival_time,waiting_time,speed,dur]
     factors.index = factors.index + 1
     factors = factors.sort_index()
+
     print(len(factors))
 
 factors.to_csv('main_factors')

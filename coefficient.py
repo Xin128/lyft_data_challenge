@@ -14,9 +14,10 @@ def compute_pearson_coefficient(factors):
     :param carreer_len:
     :return:
     """
-    for col in factors.columns:
-        if col != 'driver_id':
-            print(col, factors[col].corr(factors['career_len']))
+    for col_x in factors.columns:
+        for col_y in factors.columns:
+            if col_x != 'driver_id' and col_y != 'driver_id':
+                print(col_x, col_y,factors[col_x].corr(factors[col_y]))
 
 
 
@@ -27,6 +28,7 @@ def convert_time_to_sec(factors):
         y = time.strptime(row['arrival'].split(' ')[2][:8], '%H:%M:%S')
         factors.loc[ind,'arrival']  = datetime.timedelta(hours=y.tm_hour, minutes=y.tm_min, seconds=y.tm_sec).total_seconds()
     return factors
+
 
 main_factors = pd.read_csv('/Users/xinhao/Downloads/lyft_data_challenge/0910/main_factors')
 main_factors = convert_time_to_sec(main_factors)
