@@ -7,6 +7,7 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.expand_frame_repr', False)
 pd.set_option('max_colwidth', -1)
 
+
 def compute_pearson_coefficient(factors):
     """
     compute pearson_coefficient with career length
@@ -30,7 +31,9 @@ def convert_time_to_sec(factors):
     return factors
 
 
-main_factors = pd.read_csv('/Users/xinhao/Downloads/lyft_data_challenge/0910/main_factors')
-main_factors = convert_time_to_sec(main_factors)
+main_factors = pd.read_csv('/Users/xinhao/Downloads/lyft_data_challenge/0910/main_factors_new.csv')
+
+# main_factors = convert_time_to_sec(main_factors)
 print(main_factors)
+quit()
 compute_pearson_coefficient(main_factors)
