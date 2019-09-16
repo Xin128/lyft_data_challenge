@@ -10,8 +10,9 @@ pd.set_option('max_colwidth', -1)
 driver_id_table = pd.read_csv("drop_out_drivers.csv")
 data_ride_id = pd.read_csv("driver_ids.csv")
 data_total_table = pd.read_csv('/Users/xinhao/Downloads/lyft_data_challenge/final/erin_code.csv')
-# print(data_total_table)
-# quit()
+
+print(data_total_table)
+
 def compute_drives_per_day(current_table):
     """
     compute the number of drives per day
@@ -78,9 +79,12 @@ def compute_responding_time(current_table):
         try:
             request = datetime.datetime.strptime(drive['requested_at'],'%Y-%m-%d %H:%M:%S')
             pick_up = datetime.datetime.strptime(drive['picked_up_at'],'%Y-%m-%d %H:%M:%S')
-            time = pick_up-request
-            responding_time = responding_time+time
-            ride_num += 1
+            if pick_up > request:
+                time = pick_up-request
+                responding_time = responding_time+time
+                ride_num += 1
+            else:
+                continue
         except:
             continue
     responding_time = int(responding_time.seconds)
@@ -99,9 +103,13 @@ def compute_arrival_time(current_table):
         try:
             request = datetime.datetime.strptime(drive['accepted_at'],'%Y-%m-%d %H:%M:%S')
             pick_up = datetime.datetime.strptime(str(drive['arrived_at']),'%Y-%m-%d %H:%M:%S')
-            time = pick_up-request
-            responding_time = responding_time+time
-            ride_num+=1
+
+            if pick_up > request:
+                time = pick_up - request
+                responding_time = responding_time+time
+                ride_num+=1
+            else:
+                continue
         except:
             continue
     responding_time = int(responding_time.seconds)
@@ -118,15 +126,19 @@ def compute_waiting_time(current_table):
     ride_num = 0;
     for ind,drive in current_table.iterrows():
         try:
-            request = datetime.datetime.strptime(drive['picked_up_at'],'%Y-%m-%d %H:%M:%S')
-            pick_up = datetime.datetime.strptime(drive['arrived_at'],'%Y-%m-%d %H:%M:%S')
-            time = request-pick_up
-            responding_time = responding_time+time
-            ride_num +=1
+            pick_up = datetime.datetime.strptime(drive['picked_up_at'],'%Y-%m-%d %H:%M:%S')
+            arrive = datetime.datetime.strptime(drive['arrived_at'],'%Y-%m-%d %H:%M:%S')
+
+            if pick_up > arrive:
+                time = pick_up-arrive
+                responding_time = responding_time+time
+                ride_num +=1
+            else:
+                continue
         except:
             continue
     responding_time = int(responding_time.seconds)
-
+    print(responding_time)
     return responding_time/float(ride_num)
 
 
@@ -157,6 +169,11 @@ def compute_10_to_6(current_table):
     return float(slot)/len(current_table)
 
 def compute_9_to_5(current_table):
+    """
+    compute the
+    :param current_table:
+    :return:
+    """
     slot = 0.0;
     for ind, drive in current_table.iterrows():
         accept_time = datetime.datetime.strptime(drive['accepted_at'], '%Y-%m-%d %H:%M:%S')
@@ -223,7 +240,8 @@ def compute_std_profit(current_table):
 factors = pd.DataFrame(columns = ['driver_id','career_len','rides_per_day','profit_mean','profit_std','responding','arrival',
                                   'waiting','speed','total_duration','average ride time', 'average dist per ride',
                                   '10_to_6','9_to_5','per_20_to_22','prime_time','total_prime_time','weekend_per'])
-for driver_id in driver_id_table['driver_id']:
+
+for driver_id in data_ride_id['driver_id']:
     current_table = data_total_table[data_total_table['driver'] == driver_id]
     print(driver_id)
     print('------------')
@@ -249,11 +267,12 @@ for driver_id in driver_id_table['driver_id']:
         factors.loc[-1] = [driver_id, career_len,num_per_day, profit_mean, profit_std,responding_time,arrival_time,waiting_time,speed,dur,aver_ride_time,
                            aver_dis_per_ride, per_10_to_6, per_9_to_5, per_20_to_22, per_prime_dur,total_prime,weekend_per]
         print(factors.loc[-1])
+        print(len(factors))
         factors.index = factors.index + 1
         factors = factors.sort_index()
 
 
-factors.to_csv('total_003.csv')
+factors.to_csv('total_004_for_800.csv')
 # print(data_total_table)
 
 
