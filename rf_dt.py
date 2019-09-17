@@ -8,12 +8,13 @@ from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_absolute_error
 from math import sqrt
 
-
-loc = "/Users/liutianrui/Desktop/0910/main_factors"
+###################################################
+loc = "drop_out_002.csv"
 dataset = pd.read_csv(loc)
 
 Y = dataset[["career_len"]]
-X = dataset[["rides_per_day","total_duration","profit","speed"]]
+X = dataset[["total_duration","profit","average ride time","speed","average dist per ride","speed","10_to_6","9_to_5",
+             "prime_time",'weekend_per']]
 
 X_train, X_test, y_train, y_test = train_test_split(X,Y,test_size=0.2, random_state=123)
 

@@ -19,7 +19,7 @@ X_train, X_test, Y_train, Y_test = train_test_split(X,Y,test_size=0.2, random_st
 # print (Y_train.shape) 200,1
 # print (Y_test.shape) 87,1
 
-regressor = LinearRegression()
+regressor = LogisticRegression()
 regressor.fit(X_train,Y_train)
 
 # v = pd.DataFrame(regressor.coef_,index=["Co-efficient"]).transpose()
