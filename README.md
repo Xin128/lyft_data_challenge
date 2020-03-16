@@ -1,5 +1,6 @@
 ##                                                Lyft Data Challenge
 
+detailed graph analysis & visualization in writeup.pdf
 Lyft Data Challenge 2019
 Team: GirlsWhoCode Xin Hao Erin Liu
 Sep 15, 2019
